@@ -15,6 +15,7 @@ m_y=2*x+6;
 lm_y = 2*x+10;
 l_y = 2*x+14;
 change_y=-0.5*x+5;
+forward_y = 0.5*x;
 
 a = Mpc_agent(1,[-12.5,-23,deg2rad(60)],[12.5,27,deg2rad(60)],v0,w0,s0,plan_horizon,update_horizon);
 b = Mpc_agent(2,[-17.5,-33,deg2rad(60)],[8,26,deg2rad(60)],v0,w0,s0,plan_horizon,update_horizon);
@@ -27,7 +28,7 @@ c.obstacles = [];
 % a.goal_state = [a.current_state(1)+2, 2*(a.current_state(1)+2)-0.5, a.current_state(3)];
 % b.goal_state = [a.current_state(1)-0.2, 2*(a.current_state(1)-0.2)-0.5, a.current_state(3)];
 % Initialize video
-myVideo = VideoWriter('data/lane_test_8'); %open video file
+myVideo = VideoWriter('data/lane_test_9'); %open video file
 myVideo.FrameRate = 15;  %can adjust this, 5 - 10 works well for me
 open(myVideo)
 f0 = figure;
@@ -75,6 +76,7 @@ while( (norm(a.current_state-a.goal_state)>threshold ...
        plot(x, lm_y, '--b');
        plot(x,l_y,'k');
        plot(x, change_y, '--r');
+       plot(x,forward_y+b.current_state(2));
        plot([a.init_state(1),a.goal_state(1),b.init_state(1),b.goal_state(1),c.init_state(1),c.goal_state(1)], ...
            [a.init_state(2),a.goal_state(2),b.init_state(2),b.goal_state(2),c.init_state(2),c.goal_state(2)],'rx');
 
