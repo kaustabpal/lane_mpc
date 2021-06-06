@@ -19,8 +19,8 @@ function cost = lane_cost(u,agent_state,dt,plan_horizon,agent_radius,lane_change
         
     end
     if(lane_change == false)
-        cost = abs(sum(l*(y-2*x-2)));
+        cost = abs(sum(l*(y-2*x-10.94))); % rm_y
     else
-        cost = abs(sum(l*(y-2*x-10)));
+        cost = abs(sum(l*(y-2*x-28.83))); % lm_y
     end
 end

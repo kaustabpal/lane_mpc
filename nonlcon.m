@@ -22,12 +22,12 @@ function [c, ceq] = nonlcon(controls,plan_horizon,agent_state,agent_radius,obsta
             c = [c; radi_sum - agnt_obs_dist];
         end
         new_state = agent_state;
-        for i=1:plan_horizon
+        for i=1:plan_horizon % right lane r_y
           new_state = nonhn_update(new_state, controls(i,1), controls(i,2), dt);
-          c = [c; new_state(2)-2*new_state(1)-14+agent_radius];
+          c = [c; new_state(2)-2*new_state(1)-37.77+agent_radius];
         end 
         new_state = agent_state;
-        for i=1:plan_horizon
+        for i=1:plan_horizon % left lane l_y
           new_state = nonhn_update(new_state, controls(i,1), controls(i,2), dt);
           c = [c; -(new_state(2)-2*new_state(1)+2-agent_radius)];
         end

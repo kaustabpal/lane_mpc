@@ -6,7 +6,6 @@ classdef Mpc_agent < handle
         current_state % current state of the agent
         v0 % Initial control velocities
         w0 % Initial angular velocities
-        s0 % Initial slack variables
         vp % last velocity
         wp % last angular velocity
         plan_horizon % plan for 50 timesteps
@@ -22,14 +21,13 @@ classdef Mpc_agent < handle
     end
     
     methods
-        function obj = Mpc_agent(id,init_state,goal_state,v0,w0,s0,plan_horizon,update_horizon)
+        function obj = Mpc_agent(id,init_state,goal_state,v0,w0,plan_horizon,update_horizon)
             obj.id = id;
             obj.init_state = init_state; % starting state of the agent
             obj.goal_state = goal_state; % goal state of the agent
             obj.current_state = obj.init_state; % current state of the agent
             obj.v0 = v0; % Initial control velocities
             obj.w0 = w0; % Initial angular velocities
-            obj.s0 = s0; % Initial slack variables
             obj.vp = 0; % last velocity
             obj.wp = 0; % last angular velocity
             obj.plan_horizon = plan_horizon; % plan for 50 timesteps
@@ -72,10 +70,10 @@ classdef Mpc_agent < handle
             alphamax = 0.1; % max angular acceleration
             alphamin = -0.1; % min angular acceleration
 
-            A = [diff(eye(obj.plan_horizon)), zeros(obj.plan_horizon-1,obj.plan_horizon),zeros(obj.plan_horizon-1,obj.plan_horizon)];
+            A = [diff(eye(obj.plan_horizon)), zeros(obj.plan_horizon-1,obj.plan_horizon)];
             A = [A; -A];
-            A = [A; [zeros(obj.plan_horizon-1,obj.plan_horizon) diff(eye(obj.plan_horizon)) zeros(obj.plan_horizon-1,obj.plan_horizon)]];
-            A = [A; [zeros(obj.plan_horizon-1,obj.plan_horizon) -diff(eye(obj.plan_horizon)) zeros(obj.plan_horizon-1,obj.plan_horizon)]];
+            A = [A; [zeros(obj.plan_horizon-1,obj.plan_horizon) diff(eye(obj.plan_horizon))]];
+            A = [A; [zeros(obj.plan_horizon-1,obj.plan_horizon) -diff(eye(obj.plan_horizon))]];
 %             disp(size(A));
             b = [amax*obj.dt*ones(obj.plan_horizon-1,1);-amin*obj.dt*ones(obj.plan_horizon-1,1); ...
                 alphamax*obj.dt*ones(obj.plan_horizon-1,1);-alphamin*obj.dt*ones(obj.plan_horizon-1,1)];
@@ -90,7 +88,7 @@ classdef Mpc_agent < handle
             options = optimoptions(@fmincon,'Display','iter');
             if(avoid_collision == true)
                 disp("test");
-                controls = fmincon(cost,[obj.v0,obj.w0, obj.s0],A,b,[],[],lb,ub, ...
+                controls = fmincon(cost,[obj.v0,obj.w0],A,b,[],[],lb,ub, ...
                     @(controls)nonlcon(controls,obj.plan_horizon,obj.current_state ,obj.agent_radius ,obj.obstacles,obj.dt), ...
                     options);
             else
@@ -98,7 +96,6 @@ classdef Mpc_agent < handle
             end
             obj.v0 = controls(:,1);
             obj.w0 = controls(:,2);
-            obj.s0 = controls(:,3);
             obj.vp = controls(obj.update_horizon,1);
             obj.wp = controls(obj.update_horizon,2);
         end
